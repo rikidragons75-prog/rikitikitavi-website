@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riki Tiki Tavi Studio</title>
+
+    <!-- 
+        ================================================================
+        ПОДКЛЮЧЕНИЕ ШРИФТА DOTGOTHIC16
+        ================================================================
+        DotGothic16 — пиксельный шрифт в стиле старых японских игр.
+        Поддерживает базовую кириллицу, идеально подходит для ретро-стиля.
+        Источник: Google Fonts (бесплатно)
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />
+
+    <!-- 
+        ================================================================
+        ПОДКЛЮЧЕНИЕ ИКОНОК FONT AWESOME
+        ================================================================
+        Используются для:
+        - Иконок проектов (глобус, телефон, изображения, фильм)
+        - Иконок соцсетей (Instagram, Telegram, Behance, GitHub)
+        - Иконки конверта в контактах
+        Альтернативы: Material Icons, Bootstrap Icons, Heroicons
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        /* ================================================================
+           БЛОК 1: ГЛОБАЛЬНЫЕ НАСТРОЙКИ СТРАНИЦЫ
+           ================================================================ */
+
+        /* 
+            СБРОС ОТСТУПОВ
+            Убираем стандартные отступы у всех элементов,
+            чтобы управлять ими вручную через padding/margin.
+        */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 
+            ОСНОВНЫЕ СТИЛИ ДЛЯ ТЕЛА СТРАНИЦЫ
+            - Шрифт: DotGothic16 (пиксельный)
+            - Фон: тёмный (запасной, если видео не загрузится)
+            - Текст: светлый, почти белый
+            - Отключаем сглаживание для пиксельного эффекта
+            - Добавляем смешанное свечение (холодное + лёгкое зелёное)
+        */
+        body {
+            /* ОСНОВНОЙ ШРИФТ — меняйте здесь, если захотите другой */
+            font-family: 'DotGothic16', monospace;
+            
+            /* Фон-заглушка (если видео не загрузится) */
+            background: #0a0a0a;
+            
+            /* Цвет текста по умолчанию */
+            color: #e8e8e8;
+            
+            /* Межстрочный интервал — комфортное чтение */
+            line-height: 1.8;
+            
+            /* Минимальная высота = 100% экрана */
+            min-height: 100vh;
+            
+            /* Центрируем контент по горизонтали, прижимаем к верху */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            
+            /* Внешние отступы */
+            padding: 30px 20px 60px;
+            
+            /* Межбуквенный интервал — улучшает читаемость пиксельных шрифтов */
+            letter-spacing: 0.5px;
+            
+            /* 
+                ОТКЛЮЧАЕМ СГЛАЖИВАНИЕ ШРИФТА
+                Это делает буквы "пиксельными" и чёткими,
+                как на старых компьютерных экранах.
+            */
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+            font-smooth: never;
+            
+            /* 
+                ============================================================
+                СМЕШАННОЕ ПИКСЕЛЬНОЕ СВЕЧЕНИЕ
+                ============================================================
+                Добавляем свечение по краям текста:
+                - Основной слой: холодный бело-голубой (rgba(200,200,220))
+                - Второй слой: лёгкий зелёный оттенок (rgba(150,255,180))
+                
+                Чем больше слоёв и чем выше значения, тем ярче свечение.
+                Регулируйте значения rgba(0-255, 0-255, 0-255, прозрачность)
+            */
+            text-shadow: 
+                /* Слой 1: холодное свечение (главное) */
+                0 0 7px rgba(200, 200, 220, 0.15),
+                0 0 15px rgba(180, 180, 200, 0.08),
+                0 0 30px rgba(160, 160, 180, 0.04),
+                
+                /* Слой 2: ЗЕЛЁНОЕ СВЕЧЕНИЕ (добавляем лёгкий оттенок старого монитора) */
+                0 0 8px rgba(120, 255, 160, 0.08),
+                0 0 20px rgba(100, 230, 150, 0.04);
+        }
+
+
+        /* ================================================================
+           БЛОК 2: ФОНОВОЕ ВИДЕО
+           ================================================================ */
+
+        /* 
+            .bg-video — видео на весь экран
+            - position: fixed — не двигается при скролле
+            - z-index: -2 — позади всего контента
+            - filter: grayscale + brightness — ч/б эффект и затемнение
+            - object-fit: cover — видео заполняет экран без искажений
+        */
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            object-fit: cover;
+            
+            /* 
+                ЧЁРНО-БЕЛОЕ ЗАТЕМНЕНИЕ
+                - grayscale(100%) — полностью ч/б
+                - brightness(0.35) — затемнение на 65%
+                - contrast(1.2) — усиливаем контраст
+            */
+            filter: grayscale(100%) brightness(0.35) contrast(1.2);
+        }
+
+        /* 
+            ФОТО-ЗАГЛУШКА (если видео не загрузилось)
+            Используется когда:
+            1. Видео файл повреждён
+            2. Браузер не поддерживает видео
+            3. Медленный интернет
+            Чтобы включить — раскомментируйте блок в HTML.
+        */
+        .bg-video.img-fallback {
+            display: none;
+            background: url('https://picsum.photos/1920/1080?random=99') center/cover no-repeat;
+        }
+
+
+        /* ================================================================
+           БЛОК 3: ЗАТЕМНЕНИЕ ПОВЕРХ ФОНА (ВИНЬЕТКА)
+           ================================================================ */
+
+        /* 
+            .bg-overlay — создаёт плавное затемнение по краям
+            - radial-gradient: от прозрачного в центре к тёмному по краям
+            - Делает текст более читаемым на ярком фоне
+            - pointer-events: none — клики проходят сквозь
+        */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+            pointer-events: none;
+        }
+
+
+        /* ================================================================
+           БЛОК 4: ОСНОВНОЙ КОНТЕЙНЕР ("ИНФОРМАТИВНОЕ ПОЛЕ")
+           ================================================================ */
+
+        /* 
+            .container — главная обёртка для всего контента
+            - max-width: 620px — УЗКАЯ ШИРИНА (как колонка в книге/газете)
+            - display: flex + flex-direction: column — вертикальное расположение
+            - gap: 60px — расстояние между модулями-островками
+            - z-index: 10 — поверх фона
+        */
+        .container {
+            max-width: 620px;          /* ← МЕНЯЙТЕ ШИРИНУ САЙТА ЗДЕСЬ */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;                /* ← РАССТОЯНИЕ МЕЖДУ МОДУЛЯМИ */
+            position: relative;
+            z-index: 10;
+        }
+
+
+        /* ================================================================
+           БЛОК 5: МОДУЛИ ("ОСТРОВКИ")
+           ================================================================ */
+
+        /* 
+            .module — каждый блок-карточка на странице
+            - background: полупрозрачный тёмный фон
+            - backdrop-filter: blur(8px) — размытие фона за карточкой
+              (эффект "матового стекла")
+            - border: пиксельная рамка (толстая, минимальное скругление)
+            - box-shadow: тени и свечение
+            - background-image: пиксельная сетка (эффект старого дисплея)
+        */
+        .module {
+            /* Полупрозрачный фон с размытием */
+            background: rgba(15, 15, 15, 0.72);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            
+            /* 
+                ПИКСЕЛЬНАЯ РАМКА
+                - 2px толщина (вместо 1px для пиксельного стиля)
+                - border-radius: 4px (минимальное скругление)
+            */
+            border: 2px solid rgba(200, 200, 220, 0.08);
+            border-radius: 4px;
+            
+            /* Внутренние отступы */
+            padding: 35px 40px 40px;
+            
+            /* 
+                ТЕНИ И СВЕЧЕНИЕ МОДУЛЯ
+                - Внешняя тень: глубокая, для парения
+                - Внутренняя подсветка: тонкая
+                - Свечение: холодное + зелёное (как у текста)
+            */
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.7),                     /* внешняя тень */
+                0 0 0 1px rgba(200, 200, 220, 0.03) inset,          /* внутренняя подсветка */
+                0 0 30px rgba(180, 180, 200, 0.03),                 /* холодное свечение */
+                0 0 60px rgba(160, 160, 180, 0.02),                 /* холодное свечение 2 */
+                0 0 30px rgba(100, 255, 150, 0.02);                /* ЗЕЛЁНОЕ СВЕЧЕНИЕ */
+            
+            /* Плавный переход при наведении */
+            transition: 0.3s;
+            
+            /* Усиление пиксельного рендеринга */
+            image-rendering: pixelated;
+            
+            /* 
+                ПИКСЕЛЬНАЯ СЕТКА НА МОДУЛЕ
+                Создаёт эффект старого дисплея с микро-сеткой.
+                Размер ячейки: 16x16 пикселей.
+            */
+            background-image: 
+                linear-gradient(rgba(200, 200, 220, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 220, 0.015) 1px, transparent 1px);
+            background-size: 16px 16px;
+            
+            /* 
+                ПОЗИЦИОНИРОВАНИЕ ДЛЯ ПСЕВДОЭЛЕМЕНТОВ
+                Нужно для эффекта "сканирующей строки" (см. ниже)
+            */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Эффект при наведении на модуль — усиливаем свечение и рамку */
+        .module:hover {
+            border-color: rgba(200, 200, 220, 0.15);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(180, 180, 200, 0.06),
+                0 0 80px rgba(160, 160, 180, 0.03),
+                0 0 40px rgba(100, 255, 150, 0.04);
+        }
+
+        /* 
+            ЭФФЕКТ "СКАНИРУЮЩЕЙ СТРОКИ"
+            Горизонтальные полосы, как на старом ЭЛТ-мониторе.
+            Создаётся через псевдоэлемент ::after.
+        */
+        .module::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 4px;
+            
+            /* 
+                ПОВТОРЯЮЩИЙСЯ ГРАДИЕНТ
+                Прозрачные и чёрные полосы чередуются.
+                Полоса: 2px прозрачная, 2px чёрная с прозрачностью 3%.
+            */
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            
+            /* Клики проходят сквозь псевдоэлемент */
+            pointer-events: none;
+            
+            /* Полупрозрачность для мягкости эффекта */
+            opacity: 0.3;
+        }
+
+
+        /* ================================================================
+           БЛОК 6: ШАПКА (ЛОГОТИП + НАВИГАЦИЯ)
+           ================================================================ */
+
+        /* 
+            .header-module — гибкий контейнер
+            - display: flex — элементы в строку
+            - justify-content: space-between — логотип слева, меню справа
+            - flex-wrap: wrap — перенос на мобильных
+        */
+        .header-module {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 10px;
+        }
+
+        /* 
+            .logo — название компании
+            - font-size: 2.2rem — крупный размер
+            - letter-spacing: 4px — увеличенный интервал для "воздушности"
+            - text-transform: uppercase — все буквы заглавные (лучше для пиксельного стиля)
+            - text-shadow: УСИЛЕННОЕ СВЕЧЕНИЕ (холодное + зелёное)
+        */
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 400;           /* Пиксельные шрифты не поддерживают жирность */
+            letter-spacing: 4px;
+            color: #f0f0f5;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+            
+            /* 
+                УСИЛЕННОЕ СВЕЧЕНИЕ ДЛЯ ЛОГОТИПА
+                Самое яркое на странице.
+                4 слоя холодного + 2 слоя зелёного.
+            */
+            text-shadow: 
+                /* Холодное свечение (бело-голубое) */
+                0 0 10px rgba(200, 200, 220, 0.25),
+                0 0 20px rgba(180, 180, 200, 0.15),
+                0 0 40px rgba(160, 160, 180, 0.08),
+                0 0 80px rgba(140, 140, 160, 0.04),
+                
+                /* ЗЕЛЁНОЕ СВЕЧЕНИЕ (как на старых мониторах) */
+                0 0 15px rgba(120, 255, 160, 0.12),
+                0 0 30px rgba(100, 230, 150, 0.06);
+        }
+
+        /* 
+            .logo span — вторая часть логотипа (Lab)
+            - Делаем светлее и с лёгким зелёным оттенком
+        */
+        .logo span {
+            color: #99aabb;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-left: 8px;
+            
+            text-shadow: 
+                0 0 10px rgba(180, 180, 200, 0.15),
+                0 0 20px rgba(120, 255, 160, 0.08);
+        }
+
+        /* 
+            .nav-links — контейнер ссылок
+            - display: flex — в строку
+            - gap: 20px — расстояние между ссылками
+        */
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* 
+            .nav-links a — каждая ссылка
+            - text-transform: uppercase — для пиксельного стиля
+            - border-bottom: пунктир, появляется при наведении
+            - text-shadow: лёгкое свечение
+        */
+        .nav-links a {
+            color: #aaaacc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px dotted transparent;
+            transition: 0.3s;
+            image-rendering: pixelated;
+            
+            /* Лёгкое свечение для ссылок */
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.1),
+                0 0 10px rgba(120, 255, 160, 0.04);
+        }
+
+        /* При наведении ссылка становится ярче */
+        .nav-links a:hover {
+            color: #ffffff;
+            border-bottom-color: #8888aa;
+            
+            /* Усиливаем свечение при наведении */
+            text-shadow: 
+                0 0 15px rgba(200, 200, 220, 0.3),
+                0 0 30px rgba(180, 180, 200, 0.15),
+                0 0 20px rgba(120, 255, 160, 0.12);
+        }
+
+
+        /* ================================================================
+           БЛОК 7: ЗАГОЛОВКИ (h2)
+           ================================================================ */
+
+        /* 
+            h2 — заголовки секций
+            - border-left: 4px solid — декоративная полоска слева
+            - text-transform: uppercase — для пиксельного стиля
+            - text-shadow: УСИЛЕННОЕ СВЕЧЕНИЕ (как у логотипа)
+        */
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            color: #f0f0f5;
+            border-left: 4px solid #8888aa;
+            padding-left: 18px;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+            
+            /* 
+                УСИЛЕННОЕ СВЕЧЕНИЕ ДЛЯ ЗАГОЛОВКОВ
+                Чуть слабее, чем у логотипа.
+            */
+            text-shadow: 
+                0 0 12px rgba(200, 200, 220, 0.3),
+                0 0 25px rgba(180, 180, 200, 0.15),
+                0 0 50px rgba(160, 160, 180, 0.08),
+                0 0 100px rgba(140, 140, 160, 0.04),
+                0 0 20px rgba(120, 255, 160, 0.08),
+                0 0 40px rgba(100, 230, 150, 0.04);
+        }
+
+
+        /* ================================================================
+           БЛОК 8: ТЕКСТ "О НАС"
+           ================================================================ */
+
+        /* 
+            .about-text — текст о компании
+            - border-left: тонкая линия для структуры
+            - padding-left: отступ от линии
+            - text-shadow: лёгкое свечение для текста
+        */
+        .about-text {
+            font-size: 1.05rem;
+            color: #d0d0dd;
+            line-height: 2;
+            letter-spacing: 0.4px;
+            border-left: 2px solid rgba(200, 200, 220, 0.1);
+            padding-left: 22px;
+            
+            /* Лёгкое свечение для основного текста */
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.08),
+                0 0 10px rgba(120, 255, 160, 0.03);
+        }
+
+        /* Отступ между абзацами */
+        .about-text p + p {
+            margin-top: 16px;
+        }
+
+
+        /* ================================================================
+           БЛОК 9: ПРОЕКТЫ — КАРТОЧКИ ВО ВСЮ ШИРИНУ
+           ================================================================ */
+
+        /* 
+            .project-list — вертикальный список проектов
+            - flex-direction: column — каждый проект с новой строки
+            - gap: 18px — расстояние между карточками
+        */
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 8px;
+        }
+
+        /* 
+            .project-item — одна карточка проекта
+            - display: flex — ионка слева, текст справа
+            - cursor: pointer — меняем курсор на руку (кликабельно)
+            - border-radius: 4px — минимальное скругление (пиксельный стиль)
+            - transition: плавное изменение при наведении
+            - text-shadow: лёгкое свечение
+        */
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(200, 200, 220, 0.06);
+            border-radius: 4px;
+            padding: 18px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+            
+            /* Лёгкое свечение текста в карточке */
+            text-shadow: 
+                0 0 3px rgba(180, 180, 200, 0.05),
+                0 0 8px rgba(120, 255, 160, 0.02);
+        }
+
+        /* При наведении карточка подсвечивается и немного сдвигается */
+        .project-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(200, 200, 220, 0.2);
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 
+                0 8px 30px rgba(0,0,0,0.4),
+                0 0 30px rgba(180, 180, 200, 0.05),
+                0 0 30px rgba(120, 255, 160, 0.03);
+            
+            /* Усиливаем свечение текста при наведении */
+            text-shadow: 
+                0 0 10px rgba(200, 200, 220, 0.15),
+                0 0 20px rgba(120, 255, 160, 0.08);
+        }
+
+        /* 
+            .project-item i — иконка в карточке
+            - font-size: 2rem — размер иконки
+            - opacity: 0.6 — полупрозрачная по умолчанию
+            - flex-shrink: 0 — не сжимается при нехватке места
+            - text-shadow: свечение иконки
+        */
+        .project-item i {
+            font-size: 2rem;
+            width: 40px;
+            color: #aaaacc;
+            opacity: 0.6;
+            transition: 0.3s;
+            flex-shrink: 0;
+            image-rendering: pixelated;
+            
+            /* Свечение иконки */
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.1),
+                0 0 15px rgba(120, 255, 160, 0.04);
+        }
+
+        /* При наведении иконка становится ярче */
+        .project-item:hover i {
+            opacity: 1;
+            color: #ffffff;
+            
+            /* Усиливаем свечение иконки */
+            text-shadow: 
+                0 0 20px rgba(200, 200, 220, 0.3),
+                0 0 40px rgba(180, 180, 200, 0.15),
+                0 0 30px rgba(120, 255, 160, 0.12);
+        }
+
+        /* 
+            .project-item .info — текстовая часть
+            - flex: 1 — занимает всё оставшееся место
+        */
+        .project-item .info {
+            flex: 1;
+        }
+
+        /* 
+            .project-item .info h3 — название проекта
+            - text-transform: uppercase — для пиксельного стиля
+            - text-shadow: свечение названия
+        */
+        .project-item .info h3 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #f0f0f5;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+            
+            text-shadow: 
+                0 0 8px rgba(200, 200, 220, 0.15),
+                0 0 20px rgba(180, 180, 200, 0.08),
+                0 0 15px rgba(120, 255, 160, 0.05);
+        }
+
+        /* 
+            .project-item .info p — краткое описание
+            - цвет: чуть темнее для иерархии
+        */
+        .project-item .info p {
+            font-size: 0.9rem;
+            color: #9999bb;
+            letter-spacing: 0.3px;
+            
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.05);
+        }
+
+
+        /* ================================================================
+           БЛОК 10: МОДАЛЬНОЕ ОКНО
+           ================================================================ */
+
+        /* 
+            .modal-overlay — затемнённый фон модалки
+            - display: none — скрыто по умолчанию
+            - position: fixed — поверх всего сайта
+            - backdrop-filter: blur(10px) — размытие фона
+            - z-index: 999 — выше всего
+            - justify-content: center + align-items: center — центрируем окно
+        */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Показываем модалку через JS (добавляется класс .show) */
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        /* 
+            .modal-box — само окно с информацией
+            - max-width: 520px — чуть уже основного контейнера
+            - border-radius: 4px — пиксельное скругление
+            - animation: modalPop — анимация появления
+            - box-shadow: свечение модалки
+        */
+        .modal-box {
+            background: #141418;
+            border: 1px solid rgba(200, 200, 220, 0.12);
+            max-width: 520px;
+            width: 92%;
+            padding: 40px 45px;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 
+                0 40px 100px rgba(0,0,0,0.9),
+                0 0 60px rgba(180, 180, 200, 0.05),
+                0 0 40px rgba(120, 255, 160, 0.03);
+            animation: modalPop 0.35s ease;
+        }
+
+        /* 
+            Анимация появления модалки
+            - from: начинает чуть меньше и ниже
+            - to: становится нормального размера
+        */
+        @keyframes modalPop {
+            from { 
+                opacity: 0; 
+                transform: scale(0.95) translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        /* 
+            .modal-box .close-btn — кнопка закрытия (крестик)
+            - position: absolute — позиционируем в правом верхнем углу
+            - font-size: 2rem — крупный крестик
+            - transition: поворот при наведении
+        */
+        .modal-box .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 22px;
+            font-size: 2rem;
+            color: #777799;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+            line-height: 1;
+            
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.1);
+        }
+
+        /* При наведении крестик становится белым и поворачивается */
+        .modal-box .close-btn:hover {
+            color: #ffffff;
+            transform: rotate(90deg);
+            
+            text-shadow: 
+                0 0 20px rgba(200, 200, 220, 0.3),
+                0 0 30px rgba(120, 255, 160, 0.12);
+        }
+
+        /* 
+            Стили для текста внутри модалки
+            - убираем полоску у заголовка (border-left: none)
+            - добавляем свечение
+        */
+        .modal-box h2 {     
+            border-left: none;
+            padding-left: 0;
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            image-rendering: pixelated;
+            
+            text-shadow: 
+                0 0 15px rgba(200, 200, 220, 0.3),
+                0 0 30px rgba(180, 180, 200, 0.15),
+                0 0 60px rgba(160, 160, 180, 0.08),
+                0 0 25px rgba(120, 255, 160, 0.08);
+        }
+
+        .modal-box p {
+            color: #ccccdd;
+            font-size: 1rem;
+            line-height: 2;
+            letter-spacing: 0.3px;
+            
+            text-shadow: 
+                0 0 8px rgba(180, 180, 200, 0.08),
+                0 0 15px rgba(120, 255, 160, 0.03);
+        }
+
+
+        /* ================================================================
+           БЛОК 11: ФАЙЛЫ В МОДАЛЬНОМ ОКНЕ (ДЛЯ СКАЧИВАНИЯ)
+           ================================================================ */
+
+        .modal-files {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(200, 200, 220, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Заголовок "Скачать материалы:" */
+        .files-label {
+            color: #8888aa;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .files-label i {
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+
+        /* Каждая ссылка на файл */
+        .file-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #aaaacc;
+            text-decoration: none;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(200, 200, 220, 0.06);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .file-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(200, 200, 220, 0.2);
+            transform: translateX(6px);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .file-link:hover .fa-arrow-right {
+            opacity: 0.8 !important;
+            transform: translateX(4px);
+        }
+
+        .file-link i:first-child {
+            font-size: 1.3rem;
+            opacity: 0.6;
+            transition: 0.3s;
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center;
+        }
+
+        .file-link:hover i:first-child {
+            opacity: 1;
+        }
+
+        /* Цвета иконок для разных типов файлов */
+        .file-link .fa-file-pdf { color: #e74c3c; }
+        .file-link .fa-file-archive { color: #f1c40f; }
+        .file-link .fa-file-video { color: #e67e22; }
+        .file-link .fa-file-image { color: #2ecc71; }
+        .file-link .fa-android { color: #27ae60; }
+        .file-link .fa-pen-fancy { color: #9b59b6; }
+        .file-link .fa-file-powerpoint { color: #f39c12; }
+        .file-link .fa-file-word { color: #3498db; }
+        .file-link .fa-file-audio { color: #1abc9c; }
+        .file-link .fa-file { color: #8888aa; }
+
+        /* Сообщение "Нет файлов" */
+        .no-files {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #666688;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(200, 200, 220, 0.06);
+            border-radius: 4px;
+        }
+
+        .no-files i {
+            font-size: 1.1rem;
+            opacity: 0.4;
+        }
+
+
+        /* ================================================================
+           БЛОК 12: КОНТАКТЫ
+           ================================================================ */
+
+        /* 
+            .contacts-row — строка с соцсетями и email
+            - display: flex — элементы в одну строку
+            - justify-content: space-between — соцсети слева, почта справа
+            - border-top: тонкая линия сверху для разделения
+        */
+        .contacts-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border-top: 1px solid rgba(200, 200, 220, 0.06);
+            padding-top: 28px;
+            margin-top: 6px;
+        }
+
+        /* 
+            .socials a — ссылки на соцсети
+            - font-size: 1.7rem — крупные иконки
+            - margin-right: 22px — расстояние между иконками
+            - text-shadow: свечение иконок
+        */
+        .socials a {
+            color: #aaaacc;
+            font-size: 1.7rem;
+            margin-right: 22px;
+            transition: 0.3s;
+            image-rendering: pixelated;
+            
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.1),
+                0 0 15px rgba(120, 255, 160, 0.03);
+        }
+
+        /* При наведении иконки становятся белыми с подсветкой */
+        .socials a:hover {
+            color: #ffffff;
+            
+            text-shadow: 
+                0 0 25px rgba(200, 200, 220, 0.3),
+                0 0 50px rgba(180, 180, 200, 0.15),
+                0 0 30px rgba(120, 255, 160, 0.12);
+        }
+
+        /* 
+            .email-line — email адрес
+            - border-bottom: 1px dashed — пунктирное подчёркивание
+        */
+        .email-line {
+            color: #9999bb;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            border-bottom: 1px dashed #444466;
+            padding-bottom: 4px;
+            
+            text-shadow: 
+                0 0 5px rgba(180, 180, 200, 0.08),
+                0 0 10px rgba(120, 255, 160, 0.03);
+        }
+
+        /* 
+            .footer-note — копирайт внизу
+            - делаем мелким и тёмным, чтобы не отвлекал
+        */
+        .footer-note {
+            text-align: center;
+            margin-top: 30px;
+            color: #444466;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            border-top: 1px solid #222233;
+            padding-top: 22px;
+            text-transform: uppercase;
+            
+            text-shadow: 
+                0 0 3px rgba(180, 180, 200, 0.03);
+        }
+
+
+        /* ================================================================
+           БЛОК 13: АНИМАЦИЯ МЕРЦАНИЯ (ЭФФЕКТ СТАРОГО МОНИТОРА)
+           ================================================================ */
+
+        /* 
+            @keyframes pixelFlicker — анимация мерцания
+            Создаёт едва заметное изменение прозрачности,
+            имитируя работу старого ЭЛТ-монитора.
+        */
+        @keyframes pixelFlicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        /* 
+            Применяем анимацию к основному контейнеру
+            - animation: pixelFlicker 4s infinite — длится 4 секунды, бесконечно
+        */
+        .container {
+            animation: pixelFlicker 4s infinite;
+        }
+
+
+        /* ================================================================
+           БЛОК 14: АДАПТИВНОСТЬ (ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ)
+           ================================================================ */
+
+        /* 
+            @media — стили для экранов шириной до 700px (телефоны)
+            - уменьшаем отступы
+            - уменьшаем расстояние между модулями
+            - логотип и меню становятся в колонку
+            - уменьшаем размер шрифта логотипа
+        */
+        @media (max-width: 700px) {
+            /* Уменьшаем внешние отступы страницы */
+            body { 
+                padding: 15px 12px 40px; 
+            }
+            
+            /* Уменьшаем внутренние отступы модулей */
+            .module { 
+                padding: 25px 20px 28px; 
+            }
+            
+            /* Уменьшаем расстояние между модулями */
+            .container { 
+                gap: 35px; 
+            }
+            
+            /* Уменьшаем логотип */
+            .logo { 
+                font-size: 1.8rem; 
+            }
+            
+            /* Шапка становится вертикальной */
+            .header-module { 
+                flex-direction: column; 
+                align-items: flex-start; 
+            }
+            
+            /* Уменьшаем отступы в карточках проектов */
+            .project-item { 
+                padding: 15px 18px; 
+            }
+            
+            /* Уменьшаем отступы в модалке */
+            .modal-box { 
+                padding: 30px 22px; 
+            }
+
+            /* Уменьшаем отступы в файлах */
+            .file-link {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            .file-link i:first-child {
+                font-size: 1.1rem;
+                width: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================
+         БЛОК 15: HTML — ФОНОВОЕ ВИДЕО
+         ================================================================ -->
+
+    <!-- 
+        .bg-video — видео на весь фон
+        ================================================================
+        КАК ЗАМЕНИТЬ ВИДЕО:
+        1. Скачайте видео в формате .mp4
+        2. Положите в папку с сайтом (например, video/bg.mp4)
+        3. Замените src="..." на путь к вашему файлу
+
+        ГДЕ ВЗЯТЬ БЕСПЛАТНОЕ ВИДЕО:
+        - Pexels: https://www.pexels.com/videos/
+        - Pixabay: https://pixabay.com/videos/
+        - Coverr: https://coverr.co/
+        - Mixkit: https://mixkit.co/free-stock-video/
+
+        СОВЕТ: видео должно быть с медленным движением,
+        чтобы не отвлекать от текста.
+    -->
+    <video class="bg-video" autoplay muted loop playsinline>
+        <!-- 
+            ★★★ ЗДЕСЬ ЗАМЕНИТЕ ССЫЛКУ НА СВОЁ ВИДЕО ★★★
+            Например: <source src="video/background.mp4" type="video/mp4">
+        -->
+        <source src="C:\Users\rikia\Desktop\Desktop\rikitikitavi-website\ooo.mp4" type="video/mp4" />
+    </video>
+
+    <!-- 
+        ФОТО-ЗАГЛУШКА (если видео не загрузилось)
+        ================================================================
+        Раскомментируйте этот блок, если хотите показывать фото
+        вместо видео (например, на медленном интернете).
+
+        КАК ЗАМЕНИТЬ ФОТО:
+        1. Положите фото в папку img/bg.jpg
+        2. Замените ссылку в background: url('ваше_фото.jpg')
+        3. Или используйте ссылку из интернета
+
+        ГДЕ ВЗЯТЬ БЕСПЛАТНЫЕ ФОТО:
+        - Unsplash: https://unsplash.com
+        - Pexels: https://www.pexels.com
+        - Pixabay: https://pixabay.com
+    -->
+    <!-- 
+    <div class="bg-video img-fallback" style="display:block; background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') center/cover no-repeat;"></div>
+    -->
+
+    <!-- 
+        ЗАТЕМНЕНИЕ ПОВЕРХ ФОНА (виньетка)
+        Создаёт эффект "кадра" — по краям темнее, в центре светлее.
+        Делает текст более читаемым.
+    -->
+    <div class="bg-overlay"></div>
+
+
+    <!-- ================================================================
+         БЛОК 16: HTML — ОСНОВНОЙ КОНТЕЙНЕР (ВЕСЬ КОНТЕНТ)
+         ================================================================ -->
+    <div class="container">
+
+        <!-- ============================================================
+             МОДУЛЬ 1: ШАПКА
+             ============================================================ -->
+        <div class="module">
+            <div class="header-module">
+                <!-- 
+                    ЛОГОТИП
+                    ========================================================
+                    Замените "Creative" и "Lab" на название вашей компании.
+                    Чтобы изменить цвет — ищите .logo в CSS.
+                -->
+                <div class="logo">
+                    RIKI TIKI TAVI<span>studio</span>
+                </div>
+
+                <!-- 
+                    НАВИГАЦИЯ
+                    ========================================================
+                    Ссылки ведут на секции внутри страницы.
+                    Чтобы добавить новую ссылку:
+                    <a href="#new-section">Новая секция</a>
+                -->
+                <div class="nav-links">
+                    <a href="#about">О нас</a>
+                    <a href="#projects">Проекты</a>
+                    <a href="#contacts">Контакты</a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================================
+             МОДУЛЬ 2: О НАС
+             ============================================================ -->
+        <div class="module" id="about">
+            <h2>О нас</h2>
+            <div class="about-text">
+                <!-- 
+                    ТЕКСТ О КОМПАНИИ
+                    ========================================================
+                    Замените текст на свой.
+                    Используйте <p> для каждого абзаца.
+                -->
+                <p>
+«To see the world, things dangerous to come to, to see behind walls, draw closer, to find each other, and to feel. That is the purpose of life»</p>
+                <p>from the movie The Incredible Life of Walter Mitty</p>
+                <!-- 
+                    ДОБАВИТЬ НОВЫЙ АБЗАЦ:
+                    <p>Текст нового абзаца...</p>
+                -->
+            </div>
+        </div>
+
+
+        <!-- ============================================================
+             МОДУЛЬ 3: ПРОЕКТЫ
+             ============================================================ -->
+        <div class="module" id="projects">
+            <h2>Наши проекты</h2>
+            <div class="project-list">
+
+                <!-- 
+                    КАРТОЧКА ПРОЕКТА 1
+                    ========================================================
+                    data-project="1" — идентификатор для связи с модалкой
+                    Иконка: классы Font Awesome (https://fontawesome.com/icons)
+                    
+                    КАК ДОБАВИТЬ НОВЫЙ ПРОЕКТ:
+                    1. Скопируйте блок .project-item
+                    2. Измените data-project="5" (следующий номер)
+                    3. Поменяйте иконку, название и описание
+                    4. Добавьте описание в JavaScript (раздел projectData)
+                -->
+                <div class="project-item" data-project="1">
+                    <i class="fas fa-brain"></i>    <!-- Иконка мозга (AI/нейросети) -->
+                    <div class="info">
+                        <h3>AI-агент</h3>
+                        <p>ваш будущий помошник</p>
+                    </div>
+                </div>
+
+                <!-- КАРТОЧКА ПРОЕКТА 2 -->
+                <div class="project-item" data-project="2">
+                    <i class="fas fa-robot"></i>    <!-- Иконка робота (AI) -->
+                    <div class="info">
+                        <h3>Telegram bote</h3>
+                        <p>наша частичка в telegram</p>
+                    </div>
+                </div>
+
+                <!-- КАРТОЧКА ПРОЕКТА 3 -->
+                <div class="project-item" data-project="3">
+                    <i class="fas fa-magic"></i>    <!-- Микросхема (AI) -->
+                    <div class="info">
+                        <h3>Фотоальбом "WEEKEND"</h3>
+                        <p>the village and Yaroslavl</p>
+                    </div>
+                </div>
+
+                <!-- КАРТОЧКА ПРОЕКТА 4 -->
+                <div class="project-item" data-project="4">
+                    <i class="fas fa-microchip"></i>    <!-- Магия (AI-творчество) -->
+                    <div class="info">
+                        <h3>void.hub</h3>
+                        <p>Экосистема планирования</p>
+                    </div>
+                </div>
+
+                <!-- 
+                    ========================================================
+                    ПРИМЕР ДОБАВЛЕНИЯ НОВОГО ПРОЕКТА:
+                    ========================================================
+                    <div class="project-item" data-project="5">
+                        <i class="fas fa-paint-brush"></i>
+                        <div class="info">
+                            <h3>Новый проект</h3>
+                            <p>Краткое описание</p>
+                        </div>
+                    </div>
+                -->
+
+            </div>
+        </div>
+
+
+        <!-- ============================================================
+             МОДУЛЬ 4: КОНТАКТЫ
+             ============================================================ -->
+        <div class="module" id="contacts">
+            <h2>Контакты</h2>
+            <div class="contacts-row">
+
+                <!-- 
+                    СОЦИАЛЬНЫЕ СЕТИ
+                    ========================================================
+                    Замените href="#" на ссылки на ваши профили.
+                    
+                    ПОПУЛЯРНЫЕ ИКОНКИ:
+                    - Instagram:  <i class="fab fa-instagram"></i>
+                    - Telegram:   <i class="fab fa-telegram-plane"></i>
+                    - Behance:    <i class="fab fa-behance"></i>
+                    - GitHub:     <i class="fab fa-github"></i>
+                    - VK:         <i class="fab fa-vk"></i>
+                    - YouTube:    <i class="fab fa-youtube"></i>
+                    - Facebook:   <i class="fab fa-facebook"></i>
+                -->
+                <div class="socials">
+                    <!-- Telegram -->
+                    <a href="https://t.me/rtt_studio" target="_blank"><i class="fab fa-telegram-plane"></i></a>
+    
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@RikiDragons-l9f" target="_blank"><i class="fab fa-youtube"></i></a>
+                    
+                    <!-- GitHub -->
+                    <a href="https://github.com/rikidragons75-prog" target="_blank"><i class="fab fa-github"></i></a>
+
+                    <!-- 
+                        ДОБАВИТЬ НОВУЮ СОЦСЕТЬ:
+                        <a href="#" target="_blank"><i class="fab fa-vk"></i></a>
+                    -->
+                </div>
+
+                <!-- 
+                    EMAIL
+                    ========================================================
+                    Замените hello@creativelab.ru на свой email
+                -->
+                <div class="email-line">
+                    <i class="far fa-envelope" style="margin-right: 10px;"></i> 
+                    rikidragons@inbox.ru
+                </div>
+
+            </div>
+
+            <!-- 
+                КОПИРАЙТ
+                ========================================================
+                Замените "Creative Lab" на название вашей компании
+            -->
+            <div class="footer-note">
+                © 2026 RIKI TIKI TAVI studio. 
+                "be better than yesterday"
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         БЛОК 17: HTML — МОДАЛЬНОЕ ОКНО
+         ================================================================ -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-box">
+            <!-- Кнопка закрытия -->
+            <button class="close-btn" id="closeModal">✕</button>
+            
+            <!-- Заголовок проекта (заполняется из JavaScript) -->
+            <h2 id="modalTitle">Название проекта</h2>
+            
+            <!-- Подробное описание (заполняется из JavaScript) -->
+            <p id="modalDesc">Здесь будет подробное описание проекта...</p>
+            
+            <!-- ★★★ БЛОК ДЛЯ ФАЙЛОВ (СКАЧИВАНИЕ) ★★★ -->
+            <div class="modal-files" id="modalFiles">
+                <!-- Сюда будут подставляться ссылки из JavaScript -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================
+         БЛОК 18: JAVASCRIPT — ВСЯ ИНТЕРАКТИВНАЯ ЛОГИКА
+         ================================================================ -->
+    <script>
+        /**
+         * ================================================================
+         * 18.1: УПРАВЛЕНИЕ ФОНОМ (видео → фото, если видео не загрузилось)
+         * ================================================================
+         * 
+         * Логика:
+         * 1. Пробуем загрузить видео
+         * 2. Если через 3 секунды видео не загрузилось — показываем фото
+         * 3. Если видео выдало ошибку — сразу показываем фото
+         */
+        
+        // Находим видео на странице
+        const video = document.querySelector('.bg-video');
+        
+        // Находим фото-заглушку (если она есть в HTML)
+        const fallback = document.querySelector('.bg-video.img-fallback');
+
+        // Если видео не загрузилось через 3 секунды — показываем фото
+        setTimeout(() => {
+            // readyState < 2 значит видео ещё не загружено
+            if (video.readyState < 2) {
+                video.style.display = 'none';        // скрываем видео
+                if (fallback) {
+                    fallback.style.display = 'block'; // показываем фото
+                }
+            }
+        }, 3000);
+
+        // Если видео выдало ошибку — сразу показываем фото
+        video.addEventListener('error', function() {
+            video.style.display = 'none';
+            if (fallback) {
+                fallback.style.display = 'block';
+            }
+        });
+
+
+        /**
+         * ================================================================
+         * 18.2: МОДАЛЬНОЕ ОКНО (данные проектов)
+         * ================================================================
+         * 
+         * Здесь хранятся названия и описания для каждого проекта.
+         * Ключ (1, 2, 3...) должен совпадать с data-project в HTML.
+         * 
+         * ★★★ В КАЖДЫЙ ПРОЕКТ МОЖНО ДОБАВИТЬ ФАЙЛЫ ДЛЯ СКАЧИВАНИЯ ★★★
+         * 
+         * КАК ДОБАВИТЬ НОВЫЙ ПРОЕКТ:
+         * 1. Добавьте сюда новый объект с ключом (например, 5)
+         * 2. Заполните title и desc
+         * 3. Добавьте files (массив с файлами) или оставьте пустым
+         * 4. В HTML добавьте карточку с data-project="5"
+         * 
+         * КАК ДОБАВИТЬ ФАЙЛ ДЛЯ СКАЧИВАНИЯ:
+         * files: [
+         *     { 
+         *         name: 'Название файла (расширение)', 
+         *         url: 'files/имя_файла.расширение' 
+         *     }
+         * ]
+         */
+        
+        // Находим элементы модалки
+        const modal = document.getElementById('projectModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+        const closeBtn = document.getElementById('closeModal');
+
+        // ★★★ ДАННЫЕ ПРОЕКТОВ С ФАЙЛАМИ ДЛЯ СКАЧИВАНИЯ ★★★
+        const projectData = {
+            1: {
+                title: 'AI-агент',
+                desc: 'в разработке  https://rikidragons75-prog.github.io/ecosystem-website/#',
+                
+                // ★★★ ФАЙЛЫ ДЛЯ СКАЧИВАНИЯ ★★★
+                // Положите файлы в папку files/ рядом с index.html
+                //files: [
+                    //{ 
+                        //name: 'Портфолио проекта (PDF)', 
+                        //url: 'files/portfolio.pdf' 
+                    //},
+                    //{ 
+                        //name: 'Архив с кодом (ZIP)', 
+                        //url: 'files/project1-code.zip' 
+                    //}
+                //]
+            },
+            2: {
+                title: 'Telegram bote',
+                desc: 'тестируется внутри команды',
+                
+                //files: [
+                    //{ 
+                        //name: 'АПК файл (APK)', 
+                        //url: 'files/app.apk' 
+                    //},
+                    //{ 
+                        //name: 'Исходный код (ZIP)', 
+                        //url: 'files/project2-code.zip' 
+                    //}
+                //]
+            },
+            3: {
+                title: 'Фотоальбом "WEEKEND"',
+                desc: 'фотоальбом дополнительные фотографии: https://disk.yandex.ru/a/bD-FPrLdpOohRw; https://disk.yandex.ru/a/LJLp_2dgYvWyjg',
+                
+                files: [
+                    { 
+                        name: 'Фотоальбом (PDF)', 
+                        url: '\Fotoalbm.pdf' 
+                    },
+                ]
+
+            },
+            4: {
+                title: 'void.hub',
+                desc: 'в разработке https://rikidragons75-prog.github.io/ecosystem-website/#',
+                
+                //files: [
+                    //{ 
+                        //name: 'Мультфильм (MP4)', 
+                        //url: 'files/cartoon.mp4' 
+                    //},
+                    //{ 
+                        //name: 'Сценарий (PDF)', 
+                        //url: 'files/script.pdf' 
+                    //},
+                    //{ 
+                        //name: 'Эскизы (ZIP)', 
+                        //url: 'files/sketches.zip' 
+                    //}
+                //]
+            }
+            // 
+            // ПРИМЕР ДОБАВЛЕНИЯ НОВОГО ПРОЕКТА С ФАЙЛАМИ:
+            // 5: {
+            //     title: 'Название нового проекта',
+            //     desc: 'Подробное описание нового проекта...',
+            //     files: [
+            //         { name: 'Файл 1 (PDF)', url: 'files/file1.pdf' },
+            //         { name: 'Файл 2 (ZIP)', url: 'files/file2.zip' }
+            //     ]
+            // }
+            // 
+        };
+
+        /**
+         * ОТКРЫТИЕ МОДАЛКИ ПРИ КЛИКЕ НА КАРТОЧКУ
+         */
+        // Находим все карточки проектов
+        document.querySelectorAll('.project-item').forEach(item => {
+            // Добавляем обработчик клика на каждую
+            item.addEventListener('click', function() {
+                // Берём идентификатор из атрибута data-project
+                const id = this.dataset.project;
+                
+                // Проверяем, есть ли данные для этого проекта
+                if (projectData[id]) {
+                    // Заголовок и описание
+                    modalTitle.textContent = projectData[id].title;
+                    modalDesc.textContent = projectData[id].desc;
+                    
+                    // ★★★ ПОКАЗЫВАЕМ ФАЙЛЫ ДЛЯ СКАЧИВАНИЯ ★★★
+                    const filesContainer = document.getElementById('modalFiles');
+                    filesContainer.innerHTML = ''; // Очищаем контейнер
+                    
+                    // Проверяем, есть ли файлы у этого проекта
+                    if (projectData[id].files && projectData[id].files.length > 0) {
+                        // Добавляем заголовок "Скачать материалы:"
+                        const label = document.createElement('div');
+                        label.className = 'files-label';
+                        label.innerHTML = '<i class="fas fa-download"></i> Скачать материалы:';
+                        filesContainer.appendChild(label);
+                        
+                        // Добавляем каждую ссылку на файл
+                        projectData[id].files.forEach(file => {
+                            const link = document.createElement('a');
+                            link.className = 'file-link';
+                            link.href = file.url;
+                            link.download = true; // Атрибут для скачивания
+                            
+                            // Определяем иконку по расширению файла
+                            let icon = 'fa-file';
+                            if (file.url.endsWith('.pdf')) icon = 'fa-file-pdf';
+                            else if (file.url.endsWith('.zip') || file.url.endsWith('.rar')) icon = 'fa-file-archive';
+                            else if (file.url.endsWith('.mp4') || file.url.endsWith('.avi') || file.url.endsWith('.mov')) icon = 'fa-file-video';
+                            else if (file.url.endsWith('.jpg') || file.url.endsWith('.png') || file.url.endsWith('.jpeg') || file.url.endsWith('.gif')) icon = 'fa-file-image';
+                            else if (file.url.endsWith('.apk')) icon = 'fa-android';
+                            else if (file.url.endsWith('.fig')) icon = 'fa-pen-fancy';
+                            else if (file.url.endsWith('.pptx') || file.url.endsWith('.ppt')) icon = 'fa-file-powerpoint';
+                            else if (file.url.endsWith('.docx') || file.url.endsWith('.doc')) icon = 'fa-file-word';
+                            else if (file.url.endsWith('.mp3') || file.url.endsWith('.wav')) icon = 'fa-file-audio';
+                            
+                            link.innerHTML = `
+                                <i class="fas ${icon}"></i>
+                                <span>${file.name}</span>
+                                <i class="fas fa-arrow-right" style="margin-left: auto; opacity: 0.3; font-size: 0.8rem; transition: 0.3s;"></i>
+                            `;
+                            filesContainer.appendChild(link);
+                        });
+                    } else {
+                        // Если файлов нет — показываем сообщение
+                        filesContainer.innerHTML = `
+                            <div class="no-files">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Файлы для скачивания будут добавлены позже</span>
+                            </div>
+                        `;
+                    }
+                    
+                } else {
+                    // Если данных нет — показываем заглушку
+                    modalTitle.textContent = 'Проект';
+                    modalDesc.textContent = 'Описание скоро появится. Следите за обновлениями!';
+                    document.getElementById('modalFiles').innerHTML = '';
+                }
+                
+                // Показываем модальное окно
+                modal.classList.add('show');
+                
+                // Блокируем скролл на странице
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        /**
+         * ЗАКРЫТИЕ МОДАЛКИ
+         */
+        function closeModal() {
+            modal.classList.remove('show');          // скрываем окно
+            document.body.style.overflow = '';      // возвращаем скролл
+        }
+
+        // Закрытие по кнопке ✕
+        closeBtn.addEventListener('click', closeModal);
+
+        // Закрытие по клику на серую область вокруг модалки
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Закрытие по клавише ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+
+        /**
+         * ================================================================
+         * 18.3: ПЛАВНАЯ ПРОКРУТКА ПО ССЫЛКАМ В ШАПКЕ
+         * ================================================================
+         * 
+         * При клике на ссылку в навигации страница плавно
+         * прокручивается к соответствующей секции.
+         */
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();   // отменяем обычный переход по ссылке
+                
+                // Берём ID из атрибута href (убираем #)
+                const targetId = this.getAttribute('href').substring(1);
+                
+                // Находим элемент на странице
+                const targetEl = document.getElementById(targetId);
+                
+                // Если элемент найден — прокручиваем к нему
+                if (targetEl) {
+                    targetEl.scrollIntoView({ 
+                        behavior: 'smooth',   // плавная прокрутка
+                        block: 'start'        // привязываем к верху секции
+                    });
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>
